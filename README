@@ -1,0 +1,120 @@
+Class/DBI/mysql version 0.04
+============================
+
+NAME
+    Class::DBI::mysql - Extensions to Class::DBI for MySQL
+
+SYNOPSIS
+      package Film.pm;
+      use base 'Class::DBI::mysql';
+      __PACKAGE__->set_db('Main', 'dbi:mysql', 'user', 'password');
+      __PACKAGE__->set_up_table("film");
+
+      # Somewhere else ...
+
+      $howmany = Film->count;
+
+      @all_films = Film->retrieve_all;
+      $tonights_viewing  = Film->retrieve_random;
+
+      @results = Film->search_match($key => $value);
+
+DESCRIPTION
+    This is an extension to Class::DBI, containing several functions and
+    optimisations for the MySQL database. Instead of setting Class::DBI as
+    your base class, use this instead.
+
+  set_up_table
+
+      __PACKAGE__->set_up_table("table_name");
+
+    Traditionally, to use Class::DBI, you have to set up the columns:
+
+      __PACKAGE__->columns(All => qw/list of columns/);
+      __PACKAGE__->columns(Primary => 'column_name');
+
+    Whilst this allows for more flexibility if you're going to arrange your
+    columns into a variety of groupings, sometimes you just want to create
+    the 'all columns' list. Well, this information is really simple to
+    extract from MySQL itself, so why not just use that?
+
+    This call will extract the list of all the columns, and the primary key
+    and set them up for you. It will die horribly if the table contains no
+    primary key, or has a composite primary key.
+
+  count
+
+      $howmany = Film->count;
+
+    This will count how many of these there are. You could get the same
+    effect by doing a 'select all', but this avoids the overhead of having
+    to fetch them all back by using MySQL's highly optimised COUNT(*)
+    function instead.
+
+  retrieve_all
+
+      @films = Film->retrieve_all;
+
+    This will return you a list of objects - one for each of the rows in
+    your table.
+
+  retrieve_random
+
+      my $film = Film->retrieve_random;
+
+    This will select a random row from the database, and return you the
+    relevant object.
+
+    (MySQL 3.23 and higher only, at this point)
+
+  search_match
+
+      @results = Film->search_match($key => $value);
+
+    This is like search, but using the MySQL 'full text matching'
+    capabilities.
+
+CURDATE() / CURTIME() / NOW()
+    Due to the way in which placeholders work under DBI, it's currently very
+    difficult to translate a query like the following to Class::DBI
+
+      UPDATE foo
+         SET flibble = "bar", since = CURDATE()
+
+    Rather than having to convert all your columns to timestamps, this
+    module allows you to specify CURDATE(), CURTIME() or NOW() as values:
+
+      $foo->flibble("bar") and $foo->since("CURDATE()") and $foo->commit;
+
+    CAVEAT: Note that until you've called 'commit', the value of this field
+    will be set to this string, and not the translation of it. For objects
+    which are going to make use of this feature, consider turning autocommit
+    on.
+
+COPYRIGHT
+    Copyright (C) 2001 Tony Bowden. All rights reserved.
+
+    This library is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
+
+AUTHOR
+    Tony Bowden, <tony@tmtm.com>.
+
+SEE ALSO
+    the Class::DBI manpage. MySQL (http://www.mysql.com/)
+
+INSTALLATION
+
+To install this module type the following:
+
+   perl Makefile.PL
+   make
+   make test
+   make install
+
+DEPENDENCIES
+
+This module requires these other modules and libraries:
+
+  Class::DBI, Test::Simple
+

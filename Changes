@@ -1,0 +1,17 @@
+Revision history for Class::DBI::mysql.
+
+0.04  2001-06-23
+        - first CPAN release
+        - renamed to Class::DBI::mysql at the request of Michael Schwern
+
+0.03  2001-06-23
+        - fixed bug in test where, if the last table in the database
+          contained an underscore in its name, magically autoincrementing
+          the name would fail to give a valid table name.
+
+0.02  2001-06-14
+	- added support for CURDATE() etc 
+
+0.01  2001-05
+	- original version
+
